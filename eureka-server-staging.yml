@@ -1,0 +1,19 @@
+# =============================================================================
+# eureka-server-staging.yml — EUREKA SERVER STAGING OVERRIDES
+# Only the properties that differ from eureka-server.yml for staging.
+# =============================================================================
+
+server:
+  port: 8761
+
+eureka:
+  server:
+    wait-time-in-ms-when-sync-empty: 0
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+
+logging:
+  level:
+    com.citicore.eureka: INFO
+    com.netflix.eureka: INFO

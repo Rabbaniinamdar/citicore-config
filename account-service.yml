@@ -1,0 +1,77 @@
+# =============================================================================
+# account-service.yml — ACCOUNT SERVICE OVERRIDES
+# Only the properties that genuinely differ from the shared configuration.
+#
+# Account Service uses a custom primary/replica datasource topology
+# (see DataSourceConfig.java). The datasource is auto-configured via
+# spring.datasource.primary.* / spring.datasource.replica.* and the
+# default DataSourceAutoConfiguration is excluded.
+# =============================================================================
+
+server:
+  port: 8083
+  address: 0.0.0.0
+  shutdown: graceful
+
+spring:
+  application:
+    name: account-service
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+  datasource:
+    primary:
+      jdbc-url: jdbc:mysql://${ACCOUNT_DB_HOST}:3306/citicore_account?serverTimezone=UTC
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
+      driver-class-name: com.mysql.cj.jdbc.Driver
+    replica:
+      jdbc-url: jdbc:mysql://${ACCOUNT_REPLICA_HOST:${ACCOUNT_DB_HOST}}:3306/citicore_account?serverTimezone=UTC
+      username: ${DB_REPLICA_USERNAME:${DB_USERNAME}}
+      password: ${DB_REPLICA_PASSWORD:${DB_PASSWORD}}
+      driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2000ms
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      group-id: account-group
+
+# account-service specific business rules
+citicore:
+  account:
+    min-savings-balance: 1000
+    min-current-balance: 5000
+
+# account-service specific scheduling
+task:
+  scheduling:
+    pool:
+      size: 2
+
+logging:
+  level:
+    com.citicore.account: INFO
+    org.springframework.data.redis: WARN
+    org.apache.kafka: WARN

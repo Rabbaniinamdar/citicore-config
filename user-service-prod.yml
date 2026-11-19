@@ -1,0 +1,26 @@
+# =============================================================================
+# user-service-prod.yml — USER SERVICE PRODUCTION OVERRIDES
+# Only the properties that differ from user-service.yml for production.
+# =============================================================================
+
+spring:
+  datasource:
+    url: jdbc:mysql://${RDS_PROD_ENDPOINT}:3306/citicore_userdb?serverTimezone=UTC&useSSL=true&requireSSL=true&verifyServerCertificate=true
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 10
+
+  kafka:
+    bootstrap-servers: ${MSK_PROD_BOOTSTRAP_SERVERS}
+
+aws:
+  region: ${AWS_REGION}
+  s3:
+    bucket: citicore-prod-kyc-docs
+
+kyc:
+  upload-dir: /app/uploads/kyc/
+
+logging:
+  level:
+    com.citicore.user: INFO

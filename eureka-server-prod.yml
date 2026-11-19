@@ -1,0 +1,25 @@
+# =============================================================================
+# eureka-server-prod.yml — EUREKA SERVER PRODUCTION OVERRIDES
+# Only the properties that differ from eureka-server.yml for production.
+#
+# NOTE: Eureka Server is a local-development / legacy platform component.
+# Staging and production services use Kubernetes DNS for discovery and do
+# not register with Eureka. This file exists so the Eureka Server image can
+# still be deployed if needed, but it is not part of the production service
+# mesh.
+# =============================================================================
+
+server:
+  port: 8761
+
+eureka:
+  server:
+    wait-time-in-ms-when-sync-empty: 0
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+
+logging:
+  level:
+    com.citicore.eureka: INFO
+    com.netflix.eureka: INFO

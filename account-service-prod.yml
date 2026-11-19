@@ -1,0 +1,32 @@
+# =============================================================================
+# account-service-prod.yml — ACCOUNT SERVICE PRODUCTION OVERRIDES
+# Only the properties that differ from account-service.yml for production.
+# =============================================================================
+
+spring:
+  datasource:
+    primary:
+      jdbc-url: jdbc:mysql://${RDS_PROD_ENDPOINT}:3306/citicore_account?serverTimezone=UTC&useSSL=true&requireSSL=true&verifyServerCertificate=true
+      hikari:
+        maximum-pool-size: 50
+        minimum-idle: 10
+    replica:
+      jdbc-url: jdbc:mysql://${RDS_REPLICA_PROD_ENDPOINT:${RDS_PROD_ENDPOINT}}:3306/citicore_account?serverTimezone=UTC&useSSL=true&requireSSL=true&verifyServerCertificate=true
+      username: ${DB_REPLICA_USERNAME}
+      password: ${DB_REPLICA_PASSWORD}
+      hikari:
+        maximum-pool-size: 50
+        minimum-idle: 10
+
+  kafka:
+    bootstrap-servers: ${MSK_PROD_BOOTSTRAP_SERVERS}
+
+  sql:
+    init:
+      mode: never
+
+logging:
+  level:
+    com.citicore.account: INFO
+    org.springframework.data.redis: WARN
+    org.apache.kafka: WARN

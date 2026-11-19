@@ -1,0 +1,17 @@
+# =============================================================================
+# api-gateway-test.yml — API GATEWAY TEST OVERRIDES
+# Only the properties that differ from api-gateway.yml for CI tests.
+# =============================================================================
+
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+logging:
+  level:
+    com.citicore.gateway: INFO
+    org.springframework.cloud.gateway: INFO

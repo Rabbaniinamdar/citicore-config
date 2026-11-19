@@ -1,0 +1,27 @@
+# =============================================================================
+# notification-service-local.yml — NOTIFICATION SERVICE LOCAL OVERRIDES
+# Only the properties that differ from notification-service.yml for local dev.
+# =============================================================================
+
+spring:
+  mail:
+    host: mailpit
+    port: 1025
+    username: ${MAIL_USERNAME:test}
+    password: ${MAIL_PASSWORD:test}
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+  kafka:
+    bootstrap-servers: kafka:9092
+
+logging:
+  level:
+    com.citicore.notification: DEBUG
+    org.springframework.mail: DEBUG
+    jakarta.mail: DEBUG
+    org.eclipse.angus.mail: DEBUG

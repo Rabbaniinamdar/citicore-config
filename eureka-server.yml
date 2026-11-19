@@ -1,0 +1,24 @@
+# =============================================================================
+# eureka-server.yml — EUREKA SERVER OVERRIDES
+# Only the properties that genuinely differ from the shared configuration.
+# =============================================================================
+
+server:
+  port: 8761
+  shutdown: graceful
+
+spring:
+  application:
+    name: eureka-server
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+  server:
+    wait-time-in-ms-when-sync-empty: 0
+
+logging:
+  level:
+    com.citicore.eureka: INFO
+    com.netflix.eureka: INFO

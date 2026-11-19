@@ -1,0 +1,50 @@
+# =============================================================================
+# transaction-service.yml — TRANSACTION SERVICE OVERRIDES
+# Only the properties that genuinely differ from the shared configuration.
+# =============================================================================
+
+server:
+  port: 8084
+  shutdown: graceful
+
+spring:
+  application:
+    name: transaction-service
+
+  datasource:
+    url: jdbc:mysql://${TRANSACTION_DB_HOST}:3306/citicore_transactiondb?serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      group-id: transaction-group
+
+  cloud:
+    openfeign:
+      client:
+        config:
+          account-service:
+            connect-timeout: 3000
+            read-timeout: 5000
+
+# OutboxPublisher polls every 5 seconds
+task:
+  scheduling:
+    pool:
+      size: 2
+
+# transaction business rules
+citicore:
+  transaction:
+    daily-limit:
+      TRANSFER: 500000
+      DEPOSIT: 1000000
+      WITHDRAWAL: 200000
+
+logging:
+  level:
+    com.citicore.transaction: INFO
+    org.springframework.kafka: INFO

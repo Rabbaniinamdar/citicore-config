@@ -1,0 +1,18 @@
+# =============================================================================
+# transaction-service-local.yml — TRANSACTION SERVICE LOCAL OVERRIDES
+# Only the properties that differ from transaction-service.yml for local dev.
+# =============================================================================
+
+spring:
+  datasource:
+    url: jdbc:mysql://mysql:3306/citicore_transactiondb?serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+
+  kafka:
+    bootstrap-servers: kafka:9092
+
+logging:
+  level:
+    com.citicore.transaction: DEBUG
+    org.springframework.kafka: DEBUG

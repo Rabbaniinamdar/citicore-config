@@ -1,0 +1,140 @@
+# =============================================================================
+# application.yml — SHARED CONFIG (Config Server)
+#
+# Inherited by ALL services automatically. Service-specific files
+# ({service}.yml) and profile-specific files ({service}-{profile}.yml)
+# only override what is DIFFERENT for that service / environment.
+#
+# Spring Cloud Config resolution order (last wins):
+#   1. application.yml                  ← this file (lowest priority)
+#   2. application-{profile}.yml        ← shared environment overrides
+#   3. {service}.yml                   ← service-specific overrides
+#   4. {service}-{profile}.yml         ← service + environment (highest)
+# =============================================================================
+
+# ─── Service discovery (Eureka) ─────────────────────────────────────────────
+# Overridden per environment: local uses Eureka, staging/prod disables Eureka
+# and uses Kubernetes DNS instead (see application-prod.yml).
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://eureka-server:8761/eureka}
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+
+spring:
+  cloud:
+    inetutils:
+      preferred-networks:
+        - 10.0.
+      ignored-interfaces:
+        - docker0
+        - veth.*
+        - eth1
+
+  # ─── JPA defaults ────────────────────────────────────────────────────────
+  # ddl-auto=update keeps local development working out of the box.
+  # application-prod.yml overrides to validate (migrations only).
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+        jdbc:
+          time_zone: UTC
+
+  mvc:
+    throw-exception-if-no-handler-found: true
+
+  server:
+    error:
+      include-message: always
+      include-binding-errors: always
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+
+  # ─── Kafka defaults ─────────────────────────────────────────────────────
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: true
+        delivery.timeout.ms: 30000
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      isolation-level: read_committed
+
+  # ─── Redis defaults ─────────────────────────────────────────────────────
+  data:
+    redis:
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 20
+          max-idle: 10
+          min-idle: 5
+
+# ─── Actuator (same exposure across all services) ───────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,refresh
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+  metrics:
+    enable:
+      all: true
+
+# ─── Resilience4j defaults (safe to define globally) ────────────────────────
+resilience4j:
+  timelimiter:
+    instances:
+      default:
+        timeout-duration: 3s
+  circuitbreaker:
+    instances:
+      default:
+        register-health-indicator: true
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 2
+        record-exceptions:
+          - org.springframework.web.client.HttpClientErrorException
+          - java.util.concurrent.TimeoutException
+
+# ─── Logging defaults ──────────────────────────────────────────────────────
+logging:
+  level:
+    root: INFO
+    org.apache.kafka: WARN
+    org.springframework.security: WARN
+    org.springframework.kafka: INFO
+    org.hibernate.SQL: WARN
+
+# ─── JWT (secret comes from environment, never from Git) ───────────────────
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiration: 900000        # 15 minutes in ms
+  refresh-token-expiration: 604800000    # 7 days in ms

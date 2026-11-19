@@ -1,0 +1,23 @@
+# =============================================================================
+# auth-service-test.yml — AUTH SERVICE TEST OVERRIDES
+# Only the properties that differ from auth-service.yml for CI tests.
+# =============================================================================
+
+spring:
+  datasource:
+    url: jdbc:tc:mysql:8.0:///citicore_authdb?serverTimezone=UTC
+    username: test
+    password: test
+
+  kafka:
+    bootstrap-servers: ${spring.embedded.kafka.brokers}
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+
+logging:
+  level:
+    com.citicore.auth: INFO
+    org.springframework.security: WARN

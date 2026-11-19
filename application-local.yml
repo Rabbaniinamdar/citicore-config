@@ -1,0 +1,99 @@
+# =============================================================================
+# application-local.yml — SHARED LOCAL DEVELOPMENT OVERRIDES
+#
+# Activated by: SPRING_PROFILES_ACTIVE=local
+#
+# These overrides apply to EVERY service when running locally.
+# Service-specific differences are layered on top by {service}-local.yml.
+#
+# NOTE: spring.config.import is intentionally NOT set here. It lives in each
+# service's own application.yml to avoid a circular dependency: the Config
+# Server must be able to serve this file without first needing itself.
+# =============================================================================
+
+# ─── Local Database (Docker Compose MySQL) ─────────────────────────────────
+spring:
+  datasource:
+    url: jdbc:mysql://mysql:3306/${DB_NAME:citicore}?serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+
+  # ─── Local Kafka (KRaft mode, PLAINTEXT) ────────────────────────────────
+  kafka:
+    bootstrap-servers: kafka:9092
+    security:
+      protocol: PLAINTEXT
+    producer:
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: true
+    consumer:
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      isolation-level: read_committed
+
+  # ─── Local Redis (no TLS) ───────────────────────────────────────────────
+  data:
+    redis:
+      host: redis
+      port: 6379
+      timeout: 2000ms
+      ssl:
+        enabled: false
+
+  # ─── Local Email (Mailpit) ──────────────────────────────────────────────
+  mail:
+    host: mailpit
+    port: 1025
+    username: ${MAIL_USERNAME:test}
+    password: ${MAIL_PASSWORD:test}
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+# ─── Local Object Storage (MinIO, S3-compatible) ───────────────────────────
+aws:
+  s3:
+    endpoint: http://minio:9000
+    region: us-east-1
+    path-style-access: true
+    credentials:
+      access-key: ${MINIO_ROOT_USER:minioadmin}
+      secret-key: ${MINIO_ROOT_PASSWORD:minioadmin123}
+
+# ─── Local Service Discovery (Eureka) ──────────────────────────────────────
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://eureka-server:8761/eureka}
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+
+# ─── Local JWT (development fallback — override via JWT_SECRET env var) ───
+jwt:
+  secret: ${JWT_SECRET:local-dev-secret-minimum-32-characters-long-for-hs256}
+  access-token-expiration: 900000
+  refresh-token-expiration: 604800000
+
+# ─── Local Logging (verbose for development) ───────────────────────────────
+logging:
+  level:
+    root: INFO
+    com.citicore: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.kafka: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

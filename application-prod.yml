@@ -1,0 +1,100 @@
+# =============================================================================
+# application-prod.yml — SHARED PRODUCTION ENVIRONMENT OVERRIDES
+#
+# Activated by: SPRING_PROFILES_ACTIVE=prod
+#
+# AWS production infrastructure:
+#   - RDS MySQL (Multi-AZ, 3 AZ, KMS encrypted)
+#   - MSK Kafka (TLS + IAM auth, RF=3)
+#   - ElastiCache Redis (Cluster Mode, TLS)
+#   - S3 (SSE-KMS + Object Lock)
+#   - SES (Production, dedicated IP pool)
+#   - Secrets Manager + IRSA for credentials
+#
+# NOTE: spring.config.import is intentionally NOT set here. It lives in each
+# service's own application.yml to avoid a circular dependency: the Config
+# Server must be able to serve this file without first needing itself.
+# =============================================================================
+
+# ─── Production Database (RDS MySQL, TLS enforced, KMS encrypted) ──────────
+spring:
+  datasource:
+    url: jdbc:mysql://${RDS_PROD_ENDPOINT}:3306/${DB_NAME:citicore_prod}?serverTimezone=UTC&useSSL=true&requireSSL=true&verifyServerCertificate=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 10
+      connection-timeout: 30000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+
+  # ─── Production Kafka (MSK, SASL_SSL + AWS MSK IAM) ─────────────────────
+  kafka:
+    bootstrap-servers: ${MSK_PROD_BOOTSTRAP_SERVERS}
+    security:
+      protocol: SASL_SSL
+    properties:
+      sasl:
+        mechanism: AWS_MSK_IAM
+      ssl:
+        truststore-location: /etc/ssl/certs/java/cacerts
+    producer:
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 5
+    consumer:
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      isolation-level: read_committed
+      max.poll.records: 500
+      max.poll.interval.ms: 300000
+
+  # ─── Production Redis (ElastiCache Cluster Mode, TLS) ───────────────────
+  data:
+    redis:
+      host: ${ELASTICACHE_PROD_ENDPOINT}
+      port: 6379
+      ssl:
+        enabled: true
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 20
+          max-idle: 10
+          min-idle: 5
+
+  # ─── Production Email (SES Production) ──────────────────────────────────
+  mail:
+    host: email-smtp.${AWS_REGION}.amazonaws.com
+    port: 587
+    username: ${SES_PROD_USERNAME}
+    password: ${SES_PROD_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+  # ─── Production JPA (validate only — migrations via Flyway) ────────────────
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+# ─── Production Object Storage (S3, SSE-KMS + Object Lock) ─────────────────
+aws:
+  s3:
+    region: ${AWS_REGION:us-east-1}
+    bucket-prefix: citicore-prod
+
+# ─── Production Service Discovery (K8s DNS — Eureka disabled) ──────────────
+eureka:
+  client:
+    enabled: false
+  server:
+    wait-time-in-ms-when-sync-empty: 0

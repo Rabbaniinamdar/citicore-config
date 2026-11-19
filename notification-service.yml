@@ -1,0 +1,43 @@
+# =============================================================================
+# notification-service.yml — NOTIFICATION SERVICE OVERRIDES
+# Only the properties that genuinely differ from the shared configuration.
+# =============================================================================
+
+server:
+  port: 8085
+  shutdown: graceful
+
+spring:
+  application:
+    name: notification-service
+
+  # Mail host/port are overridden per environment:
+  #   local/test  → mailpit:1025 (see notification-service-local.yml)
+  #   staging/prod → SES (see notification-service-staging.yml / -prod.yml)
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      group-id: notification-group
+
+logging:
+  level:
+    com.citicore.notification: INFO
+    org.springframework.mail: INFO
+    jakarta.mail: INFO
+    org.eclipse.angus.mail: INFO

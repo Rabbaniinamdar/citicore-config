@@ -1,0 +1,24 @@
+# =============================================================================
+# api-gateway-prod.yml — API GATEWAY PRODUCTION OVERRIDES
+# Only the properties that differ from api-gateway.yml for production.
+#
+# Service discovery switches from Eureka to Kubernetes DNS.
+# Routes are load-balanced through K8s DNS (CoreDNS).
+# =============================================================================
+
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+eureka:
+  client:
+    enabled: false
+
+logging:
+  level:
+    com.citicore.gateway: INFO
+    org.springframework.cloud.gateway: INFO

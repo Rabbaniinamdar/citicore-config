@@ -1,0 +1,17 @@
+# =============================================================================
+# notification-service-test.yml — NOTIFICATION SERVICE TEST OVERRIDES
+# Only the properties that differ from notification-service.yml for CI tests.
+# =============================================================================
+
+spring:
+  mail:
+    host: mailpit
+    port: 1025
+
+  kafka:
+    bootstrap-servers: ${spring.embedded.kafka.brokers}
+
+logging:
+  level:
+    com.citicore.notification: INFO
+    org.springframework.mail: WARN

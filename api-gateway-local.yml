@@ -1,0 +1,17 @@
+# =============================================================================
+# api-gateway-local.yml — API GATEWAY LOCAL OVERRIDES
+# Only the properties that differ from api-gateway.yml for local dev.
+# =============================================================================
+
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+logging:
+  level:
+    com.citicore.gateway: DEBUG
+    org.springframework.cloud.gateway: DEBUG

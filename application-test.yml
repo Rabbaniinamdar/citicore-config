@@ -1,0 +1,67 @@
+# =============================================================================
+# application-test.yml — SHARED TEST ENVIRONMENT OVERRIDES
+#
+# Activated by: SPRING_PROFILES_ACTIVE=test
+#
+# Used by CI integration tests. Infrastructure is provided by Testcontainers
+# (MySQL, Kafka, Redis, MinIO, Mailpit) or embedded connectors.
+#
+# NOTE: spring.config.import is intentionally NOT set here. It lives in each
+# service's own application.yml to avoid a circular dependency.
+# =============================================================================
+
+# ─── Test Database (Testcontainers MySQL 8.0) ──────────────────────────────
+spring:
+  datasource:
+    url: jdbc:tc:mysql:8.0:///citicore_test?serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: test
+    password: test
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+
+  # ─── Test Kafka (Embedded Kafka / Testcontainers) ───────────────────────
+  kafka:
+    bootstrap-servers: ${spring.embedded.kafka.brokers}
+    security:
+      protocol: PLAINTEXT
+    consumer:
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      isolation-level: read_committed
+
+  # ─── Test Redis (Testcontainers / embedded) ─────────────────────────────
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  # ─── Test Email (Mailpit) ───────────────────────────────────────────────
+  mail:
+    host: mailpit
+    port: 1025
+
+# ─── Test Object Storage (LocalStack / MinIO) ──────────────────────────────
+aws:
+  s3:
+    endpoint: http://localstack:4566
+    region: us-east-1
+    path-style-access: true
+
+# ─── Test Service Discovery (Eureka disabled for tests) ────────────────────
+eureka:
+  client:
+    enabled: false
+
+# ─── Test JWT (deterministic, never a real secret) ─────────────────────────
+jwt:
+  secret: test-secret-minimum-32-characters-long-for-hs256
+  access-token-expiration: 900000
+  refresh-token-expiration: 604800000
+
+# ─── Test Logging (quiet for CI) ───────────────────────────────────────────
+logging:
+  level:
+    root: WARN
+    com.citicore: INFO

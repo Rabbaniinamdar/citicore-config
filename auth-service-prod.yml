@@ -1,0 +1,23 @@
+# =============================================================================
+# auth-service-prod.yml — AUTH SERVICE PRODUCTION OVERRIDES
+# Only the properties that differ from auth-service.yml for production.
+# =============================================================================
+
+spring:
+  datasource:
+    url: jdbc:mysql://${RDS_PROD_ENDPOINT}:3306/citicore_authdb?serverTimezone=UTC&useSSL=true&requireSSL=true&verifyServerCertificate=true
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 10
+
+  kafka:
+    bootstrap-servers: ${MSK_PROD_BOOTSTRAP_SERVERS}
+
+  sql:
+    init:
+      mode: never
+
+logging:
+  level:
+    com.citicore.auth: INFO
+    org.springframework.security: WARN

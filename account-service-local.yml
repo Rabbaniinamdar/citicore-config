@@ -1,0 +1,31 @@
+# =============================================================================
+# account-service-local.yml — ACCOUNT SERVICE LOCAL OVERRIDES
+# Only the properties that differ from account-service.yml for local dev.
+# =============================================================================
+
+spring:
+  datasource:
+    primary:
+      jdbc-url: jdbc:mysql://mysql:3306/citicore_account?serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false
+      username: ${DB_USERNAME:root}
+      password: ${DB_PASSWORD:root}
+    replica:
+      jdbc-url: jdbc:mysql://mysql:3306/citicore_account?serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false
+      username: ${DB_REPLICA_USERNAME:${DB_USERNAME:root}}
+      password: ${DB_REPLICA_PASSWORD:${DB_PASSWORD:root}}
+
+  data:
+    redis:
+      host: redis
+      port: 6379
+      ssl:
+        enabled: false
+
+  kafka:
+    bootstrap-servers: kafka:9092
+
+logging:
+  level:
+    com.citicore.account: DEBUG
+    org.springframework.data.redis: WARN
+    org.apache.kafka: WARN

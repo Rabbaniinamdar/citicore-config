@@ -1,0 +1,18 @@
+# =============================================================================
+# transaction-service-test.yml — TRANSACTION SERVICE TEST OVERRIDES
+# Only the properties that differ from transaction-service.yml for CI tests.
+# =============================================================================
+
+spring:
+  datasource:
+    url: jdbc:tc:mysql:8.0:///citicore_transactiondb?serverTimezone=UTC
+    username: test
+    password: test
+
+  kafka:
+    bootstrap-servers: ${spring.embedded.kafka.brokers}
+
+logging:
+  level:
+    com.citicore.transaction: INFO
+    org.springframework.kafka: INFO

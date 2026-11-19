@@ -1,0 +1,26 @@
+# =============================================================================
+# user-service-test.yml — USER SERVICE TEST OVERRIDES
+# Only the properties that differ from user-service.yml for CI tests.
+# =============================================================================
+
+spring:
+  datasource:
+    url: jdbc:tc:mysql:8.0:///citicore_userdb?serverTimezone=UTC
+    username: test
+    password: test
+
+  kafka:
+    bootstrap-servers: ${spring.embedded.kafka.brokers}
+
+aws:
+  s3:
+    endpoint: http://localstack:4566
+    region: us-east-1
+    path-style-access: true
+
+kyc:
+  upload-dir: /tmp/kyc/
+
+logging:
+  level:
+    com.citicore.user: INFO

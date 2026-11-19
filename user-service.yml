@@ -1,0 +1,47 @@
+# =============================================================================
+# user-service.yml — USER SERVICE OVERRIDES
+# Only the properties that genuinely differ from the shared configuration.
+# =============================================================================
+
+server:
+  port: 8082
+  shutdown: graceful
+
+spring:
+  application:
+    name: user-service
+
+  datasource:
+    url: jdbc:mysql://${USER_DB_HOST}:3306/citicore_userdb?serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+  # user-service only PRODUCES (kyc-topic) — consumer group is optional.
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      group-id: user-group
+
+# user-service specific AWS / KYC configuration
+aws:
+  region: ${AWS_REGION}
+  s3:
+    bucket: ${S3_BUCKET}
+
+kyc:
+  upload-dir: /app/uploads/kyc/
+  max-file-size: 5MB
+
+logging:
+  level:
+    com.citicore.user: INFO
