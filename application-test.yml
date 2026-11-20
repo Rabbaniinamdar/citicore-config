@@ -53,7 +53,7 @@ aws:
 eureka:
   client:
     enabled: false
-
+  
 # ─── Test JWT (deterministic, never a real secret) ─────────────────────────
 jwt:
   secret: test-secret-minimum-32-characters-long-for-hs256

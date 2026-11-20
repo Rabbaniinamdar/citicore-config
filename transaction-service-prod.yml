@@ -17,6 +17,11 @@ spring:
     init:
       mode: never
 
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
 logging:
   level:
     com.citicore.transaction: INFO
