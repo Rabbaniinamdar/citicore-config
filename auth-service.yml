@@ -38,6 +38,14 @@ citicore:
     lockout:
       max-attempts: 5
       duration-minutes: 15
+    mfa:
+      email-otp:
+        enabled: true
+        length: 6
+        expiry-minutes: 5
+        max-attempts: 3
+        resend-cooldown-minutes: 1
+        rate-limit-per-hour: 5
 
 logging:
   level:
