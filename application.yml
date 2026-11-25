@@ -35,11 +35,12 @@ spring:
         - eth1
 
   # ─── JPA defaults ────────────────────────────────────────────────────────
-  # ddl-auto=update keeps local development working out of the box.
-  # application-prod.yml overrides to validate (migrations only).
+  # ddl-auto=validate requires Flyway migrations for schema changes.
+  # application-prod.yml also uses validate.
+  # application-local.yml may override to update for local development convenience.
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: false
     properties:
       hibernate:

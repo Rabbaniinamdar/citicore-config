@@ -25,6 +25,11 @@ spring:
       idle-timeout: 300000
       max-lifetime: 1200000
 
+  # ─── Local JPA (allow schema auto-update for local dev convenience) ────────
+  jpa:
+    hibernate:
+      ddl-auto: update
+
   # ─── Local Kafka (KRaft mode, PLAINTEXT) ────────────────────────────────
   kafka:
     bootstrap-servers: kafka:9092
